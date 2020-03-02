@@ -79,7 +79,8 @@
                     <v-form ref="form" azy-validation>
                         <v-row>
                             <v-col md="4">
-                                <v-text-field prefix="R$" v-model="valor" label="Valor" required></v-text-field>
+                                <vuetify-money v-model="valor" label="Valor" outlined :options="options"/>
+                                <!-- <v-text-field outlined placeholder="0.00" prefix="R$" v-model="valor" label="Valor" required></v-text-field> -->
                             </v-col>
                             <v-col md="8">
                                 <v-btn :disabled="valor <= 0" color="success" class="mr-4 mt-3" @click="realizarOperacao()">Confirmar {{operacao}}</v-btn>
@@ -111,6 +112,11 @@
                 numero: '',
                 nome_titular: '',
                 saldo: '',
+            },
+            options: {
+                locale: "pt-BR",
+                prefix: "R$",
+                precision: 2
             }
         }),
         created () {
@@ -118,7 +124,6 @@
             Conta.listar().then(resposta => {
                 this.contas = resposta.data;
             });
-            this.$vuetify.theme.dark = true
         },
         methods:{
             // CARREGA INFORMAÇÕES DA CONTA SELECIONADA NO MENU E SEU SALDO PARA EXIBIÇÃO
