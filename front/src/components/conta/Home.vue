@@ -45,10 +45,10 @@
       <v-container class="fill-height" fluid>
         <v-row justify="center" align="center">
           <v-col cols="12" sm="8" md="6">
-            <v-card
-                class="elevation-12"
-                v-if="conta.numero && drawer"
-            >
+            <v-alert :type="tipoMsg" v-model="hasMsg" dismissible>
+                {{ msg }}
+            </v-alert>
+            <v-card class="elevation-12" v-if="conta.numero && drawer">
             
                 <!-- SESSÃO DAS INFORMAÇÕES DA CONTA -->
                 <v-list-item three-line>
@@ -67,10 +67,10 @@
 
                 <!-- SESSÃO DAS AÇÕES DE DEPÓSITO E SAQUE -->
                 <v-card-actions v-if="!operacao">
-                    <v-btn dark depressed color="teal" @click="operacao = 'depósito'">
+                    <v-btn dark depressed color="teal" @click="operacao = 'depósito', hasMsg = false">
                         Depósito
                     </v-btn>
-                    <v-btn v-if="conta.saldo > 0" dark depressed color="error" @click="operacao = 'saque'">
+                    <v-btn v-if="conta.saldo > 0" dark depressed color="error" @click="operacao = 'saque', hasMsg = false">
                         Saque
                     </v-btn>
                 </v-card-actions>
@@ -80,7 +80,6 @@
                         <v-row>
                             <v-col md="4">
                                 <vuetify-money v-model="valor" label="Valor" outlined :options="options"/>
-                                <!-- <v-text-field outlined placeholder="0.00" prefix="R$" v-model="valor" label="Valor" required></v-text-field> -->
                             </v-col>
                             <v-col md="8">
                                 <v-btn :disabled="valor <= 0" color="success" class="mr-4 mt-3" @click="realizarOperacao()">Confirmar {{operacao}}</v-btn>
@@ -108,6 +107,9 @@
             saldoConta: null,
             valor: null,
             operacao: false,
+            hasMsg: false,
+            msg: null,
+            tipoMsg: null,
             conta: {
                 numero: '',
                 nome_titular: '',
@@ -128,6 +130,7 @@
         methods:{
             // CARREGA INFORMAÇÕES DA CONTA SELECIONADA NO MENU E SEU SALDO PARA EXIBIÇÃO
             detalharConta(conta){
+                this.hasMsg = false;
                 Conta.saldo(conta.id).then(resposta => {
                     this.conta.numero = conta.id;
                     this.conta.nome_titular = conta.nome_titular;
@@ -142,11 +145,20 @@
             // REALIZA DEPÓSITO OU SAQUE
             realizarOperacao(){
                 if(this.operacao == 'saque'){
+                    if(this.valor > this.conta.saldo){
+                        this.tipoMsg = 'error';
+                        this.msg = 'Não foi possível realizar a transação, saldo insuficiente!';
+                        this.hasMsg = true;
+                        return;
+                    }
                     this.valor = -this.valor; 
                 }
 
                 Conta.transacao(this.valor,this.conta.numero).then(resposta => {
                     if(resposta.status == 200){
+                        this.tipoMsg = 'success';
+                        this.msg = 'Transação realizada com sucesso.';
+                        this.hasMsg = true;
                         this.operacao = null;
                         this.valor = null;
                         Conta.saldo(this.conta.numero).then(resposta => {
