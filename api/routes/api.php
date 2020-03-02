@@ -13,6 +13,6 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::get('/saldo', 'ContasController@consultaSaldo');
-Route::resource('contas', 'ContasController');
-Route::resource('transacoes', 'TransactionsController');
+Route::middleware('cors')->get('/saldo', 'ContasController@consultaSaldo');
+Route::middleware('cors')->resource('contas', 'ContasController');
+Route::middleware('cors')->resource('transacoes', 'TransactionsController');

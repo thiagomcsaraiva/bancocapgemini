@@ -8,7 +8,7 @@ use App\Transaction;
 
 class TransactionsController extends Controller
 {
-    public function store(Request $request){
+    public function create(Request $request){
         if($request->filled(['valor','idConta'])){
             Transaction::create([
                 'valor' => $request->valor,
