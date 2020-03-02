@@ -10,7 +10,7 @@
         </v-list-item>
 
         <v-divider></v-divider>
-
+        <!-- LISTA DE CONTAS CADASTRADAS -->
         <v-list>
           <v-list-item
             v-for="item in contas"
@@ -49,6 +49,8 @@
                 class="elevation-12"
                 v-if="conta.numero && drawer"
             >
+            
+                <!-- SESSÃO DAS INFORMAÇÕES DA CONTA -->
                 <v-list-item three-line>
                     <v-list-item-content>
                         <div class="mb-4">Conta: {{ conta.numero }}</div>
@@ -63,6 +65,7 @@
 
                 <v-divider></v-divider>
 
+                <!-- SESSÃO DAS AÇÕES DE DEPÓSITO E SAQUE -->
                 <v-card-actions v-if="!operacao">
                     <v-btn dark depressed color="teal" @click="operacao = 'depósito'">
                         Depósito
@@ -71,6 +74,7 @@
                         Saque
                     </v-btn>
                 </v-card-actions>
+                <!-- SESSÃO DO FORM DE DEPÓSITO E SAQUE -->
                 <div class="px-2 py-2" v-if="operacao">
                     <v-form ref="form" azy-validation>
                         <v-row>
@@ -110,12 +114,14 @@
             }
         }),
         created () {
+            // CARREGA LISTA DE CONTAS PARA O MENU
             Conta.listar().then(resposta => {
                 this.contas = resposta.data;
             });
             this.$vuetify.theme.dark = true
         },
         methods:{
+            // CARREGA INFORMAÇÕES DA CONTA SELECIONADA NO MENU E SEU SALDO PARA EXIBIÇÃO
             detalharConta(conta){
                 Conta.saldo(conta.id).then(resposta => {
                     this.conta.numero = conta.id;
@@ -123,10 +129,12 @@
                     this.conta.saldo = resposta.data;
                 });
             },
+            // FECHA SESSÃO DE DEPÓSITO OU SAQUE
             voltar(){
                 this.operacao = null;
                 this.valor = null;
             },
+            // REALIZA DEPÓSITO OU SAQUE
             realizarOperacao(){
                 if(this.operacao == 'saque'){
                     this.valor = -this.valor; 
@@ -142,6 +150,7 @@
                     }
                 });
             },
+            // FORMATA O SALDO PARA EXIBIÇÃO 
             formataValor(value) {
                 let val = (value/1).toFixed(2).replace('.', ',');
                 return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
